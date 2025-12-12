@@ -1,0 +1,99 @@
+import javax.swing.*;
+import java.awt.*;
+import java.util.Random;
+
+public class CaptchaApp extends JFrame {
+    private final JLabel captchaLabel;
+    private final JTextField inputField;
+    private final JButton refreshButton;
+    private final JButton verifyButton;
+    private String currentCaptcha;
+
+    public CaptchaApp() {
+        super("Reusable CAPTCHA (lowercase)");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+
+        // Top: Title
+        JLabel title = new JLabel("Text CAPTCHA (lowercase letters only)", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 16));
+        add(title, BorderLayout.NORTH);
+
+        // Center: CAPTCHA display and input
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // CAPTCHA label (big and bold)
+        captchaLabel = new JLabel("------", SwingConstants.CENTER);
+        captchaLabel.setFont(new Font("Monospaced", Font.BOLD, 28));
+        captchaLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        captchaLabel.setOpaque(true);
+        captchaLabel.setBackground(new Color(245, 245, 245));
+
+        // Input field
+        inputField = new JTextField(12);
+
+        // Place components
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1;
+        centerPanel.add(new JLabel("CAPTCHA:", SwingConstants.RIGHT), gbc);
+
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1.0;
+        centerPanel.add(captchaLabel, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
+        centerPanel.add(new JLabel("Enter CAPTCHA:", SwingConstants.RIGHT), gbc);
+
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1.0;
+        centerPanel.add(inputField, gbc);
+
+        add(centerPanel, BorderLayout.CENTER);
+
+        // Bottom: Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        refreshButton = new JButton("Refresh");
+        verifyButton = new JButton("Verify");
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(verifyButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Actions
+        refreshButton.addActionListener(e -> generateCaptcha());
+        verifyButton.addActionListener(e -> verifyCaptcha());
+
+        // Initial state
+        generateCaptcha();
+
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    // Generates a random 6-letter lowercase captcha
+    private void generateCaptcha() {
+        String chars = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder(6);
+        Random rand = new Random();
+        for (int i = 0; i < 6; i++) {
+            sb.append(chars.charAt(rand.nextInt(chars.length())));
+        }
+        currentCaptcha = sb.toString();
+        captchaLabel.setText(currentCaptcha);
+        inputField.setText("");
+    }
+
+    // Verifies the user input against the current captcha
+    private void verifyCaptcha() {
+        String userInput = inputField.getText().trim();
+        if (userInput.equals(currentCaptcha)) {
+            JOptionPane.showMessageDialog(this, "Correct CAPTCHA!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Incorrect CAPTCHA. Try again.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(CaptchaApp::new);
+    }
+}
